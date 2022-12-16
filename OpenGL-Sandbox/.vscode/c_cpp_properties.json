@@ -1,0 +1,21 @@
+{
+    "configurations": [
+        {
+            "name": "OpenGL",
+            "includePath": [
+                "${default}",
+                "${workspaceFolder}/../vendor/glfw/include"
+            ],
+            "defines": [
+                "HZ_PLATFORM_WINDOWS"
+            ],
+            "windowsSdkVersion": "10.0.19041.0",
+            "compilerPath": "cl.exe",
+            "cStandard": "c17",
+            "cppStandard": "c++17",
+            "intelliSenseMode": "windows-msvc-x64",
+            "configurationProvider": "ms-vscode.makefile-tools"
+        }
+    ],
+    "version": 4
+}

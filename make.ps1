@@ -23,7 +23,7 @@ function Run {
 }
 
 function Launch {
-    Run "$PWD\bin\Debug-windows-x86_64\OpenGL\OpenGL.exe"
+    Run "$PWD\bin\Debug-windows-x86_64\OpenGL-Sandbox\OpenGL-Sandbox.exe"
 }
 
 function Configure {
@@ -36,10 +36,10 @@ function Clean {
 }
 
 function GLFW {
-    Run "devenv" "HelloOpenGL.sln", "/Build", 'Debug', "/Project", "$PWD\vendor\glfw\glfw.vcxproj", "/Projectconfig", "Debug"
+    Run "devenv" "HelloOpenGL.sln", "/Build", 'Debug', "/Project", "$PWD\vendor\glfw\GLFW.vcxproj", "/Projectconfig", "RELEASE"
 }
 function OpenGL {
-    Run "devenv" "HelloOpenGL.sln", "/Build", 'Debug', "/Project", "$PWD\OpenGL\OpenGL.vcxproj", "/Projectconfig", "Debug"
+    Run "devenv" "HelloOpenGL.sln", "/Build", 'Debug', "/Project", "$PWD\OpenGL-Sandbox\OpenGL-Sandbox.vcxproj", "/Projectconfig", "Debug"
 }
 
 

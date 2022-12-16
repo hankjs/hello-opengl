@@ -1,6 +1,6 @@
 workspace "HelloOpenGL"
 	architecture "x64"
-	startproject "OpenGL"
+	startproject "OpenGL-Sandbox"
 
 	configurations {
 		"Debug",
@@ -10,14 +10,10 @@ workspace "HelloOpenGL"
 
 outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
 
--- Include directories relative to root folder (solution directory)
-IncludeDir = {}
-IncludeDir["glfw"] = "vendor/glfw/include"
-
 include "vendor/glfw"
 
-project "OpenGL"
-	location "OpenGL"
+project "OpenGL-Sandbox"
+	location "OpenGL-Sandbox"
 	kind "ConsoleApp"
 	language "C++"
 	cppdialect "C++17"
@@ -31,28 +27,26 @@ project "OpenGL"
 		"%{prj.name}/src/**.cpp"
 	}
 
-	defines
-	{
-		"_CRT_SECURE_NO_WARNINGS"
+	defines {
 	}
 
 	includedirs {
 		"%{prj.name}/src",
-		"%{IncludeDir.glfw}"
+		"vendor/glfw/include",
+		"vendor"
 	}
 
-	links 
-	{ 
-		"glfw",
+	-- libdirs {
+	-- 	"bin/Debug-windows-x86_64/OpenGL-Sandbox"
+	-- }
+
+	links { 
+		"GLFW",
 		"opengl32.lib"
 	}
 
 	filter "system:windows"
 		systemversion "latest"
-
-		defines {
-			"GLFW_INCLUDE_NONE"
-		}
 
 	filter "configurations:Debug"
 		defines "HZ_DEBUG"

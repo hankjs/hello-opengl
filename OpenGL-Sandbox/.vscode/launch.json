@@ -1,0 +1,16 @@
+{
+  "configurations": [
+    {
+      "name": "Windows",
+      "type": "cppvsdbg",
+      "request": "launch",
+      "program": "${workspaceFolder}/../bin/Debug-windows-x86_64/OpenGL-Sandbox/OpenGL-Sandbox.exe",
+      "args": [],
+      "stopAtEntry": false,
+      "cwd": "${workspaceFolder}",
+      "environment": [],
+      "console": "internalConsole"
+    }
+  ],
+  "version": "2.0.0"
+}
