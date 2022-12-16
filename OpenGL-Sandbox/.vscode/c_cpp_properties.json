@@ -4,10 +4,11 @@
             "name": "OpenGL",
             "includePath": [
                 "${default}",
-                "${workspaceFolder}/../vendor/glfw/include"
+                "${workspaceFolder}/../vendor/glfw/include",
+                "${workspaceFolder}/../vendor/glew/include"
             ],
             "defines": [
-                "HZ_PLATFORM_WINDOWS"
+                "GLEW_STATIC"
             ],
             "windowsSdkVersion": "10.0.19041.0",
             "compilerPath": "cl.exe",

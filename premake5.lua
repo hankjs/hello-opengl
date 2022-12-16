@@ -28,20 +28,24 @@ project "OpenGL-Sandbox"
 	}
 
 	defines {
+		"GLEW_STATIC"
 	}
 
 	includedirs {
 		"%{prj.name}/src",
+		"vendor/glew/include",
 		"vendor/glfw/include",
+		-- "vendor/glew/lib/Release/x64",
 		"vendor"
 	}
 
-	-- libdirs {
-	-- 	"bin/Debug-windows-x86_64/OpenGL-Sandbox"
-	-- }
+	libdirs {
+		"vendor/glew/lib/Release/x64"
+	}
 
 	links { 
 		"GLFW",
+		"glew32s.lib",
 		"opengl32.lib"
 	}
 
