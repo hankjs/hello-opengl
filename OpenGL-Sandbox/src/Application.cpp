@@ -1,10 +1,35 @@
-#include <iostream>
+﻿#include <iostream>
 #include <fstream>
 #include <string>
 #include <sstream>
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
+
+#define ASSERT(x) if (!(x)) __debugbreak()
+
+/* 反斜杠后面不能有空格 */
+#define GLCall(x) do { \
+    GLClearError();\
+    x;\
+    ASSERT(GLLogCall(#x, __FILE__, __LINE__));\
+ } while (0)
+
+static void GLClearError()
+{
+    /* 循环获取错误(即清除) */
+    while (glGetError() != GL_NO_ERROR);
+}
+
+static bool GLLogCall(const char* function, const char* file, int line)
+{
+    while (GLenum error = glGetError()) {
+        std::cout << "[OpenGL Error] ("  << error << "): "
+            << function << " " << file << ":" << line << std::endl;
+        return false;
+    }
+    return true;
+}
 
 struct ShaderProgramSource
 {
@@ -36,23 +61,27 @@ static ShaderProgramSource ParseShader(const std::string& filePath)
     return { ss[0].str(), ss[1].str() };
 }
 
-static unsigned int CompileShader(unsigned int type, const std::string& source) {
-    unsigned int id = glCreateShader(type);
+static unsigned int CompileShader(unsigned int type, const std::string &source)
+{
+    unsigned int id;
+    /* 提升作用域 */
+    GLCall(id = glCreateShader(type)); /* 创建对应类型的着色器 */
     const char *src = source.c_str();
-    glShaderSource(id, 1, &src, nullptr);
-    glCompileShader(id);
+    GLCall(glShaderSource(id, 1, &src, nullptr)); /* 设置着色器源码 */
+    GLCall(glCompileShader(id));                  /* 编译着色器 */
 
+    /* 编译错误处理 */
     int result;
-    glGetShaderiv(id, GL_COMPILE_STATUS, &result);
+    GLCall(glGetShaderiv(id, GL_COMPILE_STATUS, &result)); // 获取当前着色器编译状态
     if (result == GL_FALSE)
     {
         int length;
-        glGetShaderiv(id, GL_INFO_LOG_LENGTH, &length);
-        char *message = (char *)_malloca(length * sizeof(char));
-        glGetShaderInfoLog(id, length, &length, message);
+        GLCall(glGetShaderiv(id, GL_INFO_LOG_LENGTH, &length)); // 获取日志长度
+        char *msg = (char *)_malloca(length * sizeof(char));    /* Cherno这里采用的alloca, 根据IDE提示, 我这里改成了_malloca函数 */
+        GLCall(glGetShaderInfoLog(id, length, &length, msg));   // 获取日志信息
         std::cout << "Failed to compile " << (type == GL_VERTEX_SHADER ? "vertex" : "fragment") << " shader!" << std::endl;
-        std::cout << message << std::endl;
-        glDeleteShader(id);
+        std::cout << msg << std::endl;
+        GLCall(glDeleteShader(id)); // 删除着色器
         return 0;
     }
 
@@ -61,18 +90,20 @@ static unsigned int CompileShader(unsigned int type, const std::string& source) 
 
 static unsigned int CreateShader(const std::string &vertexShader, const std::string &fragmentShader)
 {
-    unsigned int program = glCreateProgram();
+    unsigned int program;
+    GLCall(program = glCreateProgram()); /* 创建程序 */
     unsigned int vs = CompileShader(GL_VERTEX_SHADER, vertexShader);
     unsigned int fs = CompileShader(GL_FRAGMENT_SHADER, fragmentShader);
 
-    // 链接程序
-    glAttachShader(program, vs);
-    glAttachShader(program, fs);
-    glLinkProgram(program);
-    glValidateProgram(program);
-    
-    glDeleteShader(vs);
-    glDeleteShader(fs);
+    /* 将着色器附加到程序上 */
+    GLCall(glAttachShader(program, vs));
+    GLCall(glAttachShader(program, fs));
+    GLCall(glLinkProgram(program)); /* 链接程序 */
+    GLCall(glValidateProgram(program)); /* 验证 */
+
+    /* 删除着色器 */
+    GLCall(glDeleteShader(vs));
+    GLCall(glDeleteShader(fs));
 
     return program;
 }
@@ -96,10 +127,21 @@ int main(void)
     /* Make the window's context current */
     glfwMakeContextCurrent(window);
 
+    /**
+     * 交换间隔，交换缓冲区之前等待的帧数，通常称为v-sync
+     * 默认情况下，交换间隔为0
+     * 这里设置为1，即每帧更新一次
+     **/
+    glfwSwapInterval(1);
+
     if (glewInit() != GLEW_OK)
         std::cout << "Error!" << std::endl;
 
-    std::cout << glGetString(GL_VERSION) << std::endl;
+    std::cout << "Status: Using GLEW " << glewGetString(GLEW_VERSION) << std::endl;
+
+    unsigned char* glVersion;
+    GLCall(glVersion = (unsigned char*)glGetString(GL_VERSION));
+    std::cout << "Status: Using OpenGL " << glVersion << std::endl;
 
     /* 顶点位置浮点型数组 */
     float positions[] = {
@@ -116,41 +158,53 @@ int main(void)
     };
 
     unsigned int buffer;
-    glGenBuffers(1, &buffer);
-    glBindBuffer(GL_ARRAY_BUFFER, buffer);
-    glBufferData(GL_ARRAY_BUFFER, 4 * 2 * sizeof(float), positions, GL_STATIC_DRAW);
+    GLCall(glGenBuffers(1, &buffer)); /* 生成缓冲区 */
+    GLCall(glBindBuffer(GL_ARRAY_BUFFER, buffer)); /* 绑定缓冲区 */
+    GLCall(glBufferData(GL_ARRAY_BUFFER, 4 * 2 * sizeof(float), positions, GL_STATIC_DRAW)); /* 设置缓冲区数据 */
 
-    /** 必须启用属性数组，不然不会绘制东西 */
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 2, 0);
+    GLCall(glEnableVertexAttribArray(0)); /* 激活顶点属性-索引0-位置 */
+    GLCall(glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), 0)); /* 设置顶点属性-索引0 */
 
     unsigned int ibo;
-    glGenBuffers(1, &ibo);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, 6 * sizeof(unsigned int), indices, GL_STATIC_DRAW);
+    GLCall(glGenBuffers(1, &ibo));
+    GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo));
+    GLCall(glBufferData(GL_ELEMENT_ARRAY_BUFFER, 6 * sizeof(unsigned int), indices, GL_STATIC_DRAW));
 
     /* 从文件中解析着色器源码 */
     ShaderProgramSource source = ParseShader("OpenGL-Sandbox/res/shaders/Basic.shader");
     unsigned int shader = CreateShader(source.VertexSource, source.FragmentSource);
-    glUseProgram(shader);
+    GLCall(glUseProgram(shader)); /* 使用着色器程序 */
 
+    int location;
+    GLCall(location = glGetUniformLocation(shader, "u_Color")); /* 获取指定名称统一变量的位置 */
+    ASSERT(location != -1);
+    GLCall(glUniform4f(location, 0.2f, 0.3f, 0.8f, 1.0f)); /* 设置对应的统一变量 */
+
+    float r = 0.0f;
+    float increment = 0.05f;
     /* Loop until the user closes the window */
-    while (!glfwWindowShouldClose(window))
-    {
+    while (!glfwWindowShouldClose(window)) {
         /* Render here */
-        glClear(GL_COLOR_BUFFER_BIT);
+        GLCall(glClear(GL_COLOR_BUFFER_BIT));
 
-        /** Triangle */
-        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr); // 绘制
+        GLCall(glUniform4f(location, r, 0.3f, 0.8f, 1.0f));
+        /* 绘制 */
+        GLCall(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr));
 
+        if (r > 1.0f) {
+            increment = -0.05f;
+        } else if (r < 0.0f) {
+            increment = 0.05f;
+        }
+        r += increment;
         /* Swap front and back buffers */
         glfwSwapBuffers(window);
 
         /* Poll for and process events */
         glfwPollEvents();
     }
+    GLCall(glDeleteProgram(shader)); /* 删除着色器程序 */
 
-    glDeleteProgram(shader);
     glfwTerminate();
     return 0;
 }
