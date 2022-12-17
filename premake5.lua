@@ -35,7 +35,6 @@ project "OpenGL-Sandbox"
 		"%{prj.name}/src",
 		"vendor/glew/include",
 		"vendor/glfw/include",
-		-- "vendor/glew/lib/Release/x64",
 		"vendor"
 	}
 
