@@ -101,20 +101,33 @@ int main(void)
 
     std::cout << glGetString(GL_VERSION) << std::endl;
 
-    float positions[6] = {
-        -0.5f, -0.5f,
-        0.0f, 0.5f,
-        0.5f, -0.5f,
+    /* 顶点位置浮点型数组 */
+    float positions[] = {
+        -0.5f, -0.5f, // 0
+        0.5f, -0.5f,  // 1
+        0.5f, 0.5f,   // 2
+        -0.5f, 0.5f,  // 3
+    };
+
+    /* 索引缓冲区所需索引数组 */
+    unsigned int indices[] = {
+        0, 1, 2,
+        2, 3, 0
     };
 
     unsigned int buffer;
     glGenBuffers(1, &buffer);
     glBindBuffer(GL_ARRAY_BUFFER, buffer);
-    glBufferData(GL_ARRAY_BUFFER, 6 * sizeof(float), positions, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, 4 * 2 * sizeof(float), positions, GL_STATIC_DRAW);
 
     /** 必须启用属性数组，不然不会绘制东西 */
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 2, 0);
+
+    unsigned int ibo;
+    glGenBuffers(1, &ibo);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, 6 * sizeof(unsigned int), indices, GL_STATIC_DRAW);
 
     /* 从文件中解析着色器源码 */
     ShaderProgramSource source = ParseShader("OpenGL-Sandbox/res/shaders/Basic.shader");
@@ -128,7 +141,7 @@ int main(void)
         glClear(GL_COLOR_BUFFER_BIT);
 
         /** Triangle */
-        glDrawArrays(GL_TRIANGLES, 0, 3);
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr); // 绘制
 
         /* Swap front and back buffers */
         glfwSwapBuffers(window);
@@ -137,7 +150,7 @@ int main(void)
         glfwPollEvents();
     }
 
-    glDeleteProgram(shader); /* 删除着色器程序 */
+    glDeleteProgram(shader);
     glfwTerminate();
     return 0;
 }
