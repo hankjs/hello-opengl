@@ -5,7 +5,8 @@
             "includePath": [
                 "${default}",
                 "${workspaceFolder}/../vendor/glfw/include",
-                "${workspaceFolder}/../vendor/glew/include"
+                "${workspaceFolder}/../vendor/glew/include",
+                "${workspaceFolder}/vendor"
             ],
             "defines": [
                 "GLEW_STATIC"

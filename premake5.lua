@@ -24,7 +24,9 @@ project "OpenGL-Sandbox"
 
 	files {
 		"%{prj.name}/src/**.h",
-		"%{prj.name}/src/**.cpp"
+		"%{prj.name}/src/**.cpp",
+		"%{prj.name}/vendor/stb_image/**.h",
+		"%{prj.name}/vendor/stb_image/**.cpp",
 	}
 
 	defines {
@@ -33,6 +35,7 @@ project "OpenGL-Sandbox"
 
 	includedirs {
 		"%{prj.name}/src",
+		"%{prj.name}/vendor",
 		"vendor/glew/include",
 		"vendor/glfw/include",
 		"vendor"
