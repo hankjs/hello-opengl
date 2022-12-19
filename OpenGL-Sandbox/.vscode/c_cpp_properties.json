@@ -6,7 +6,8 @@
                 "${default}",
                 "${workspaceFolder}/../vendor/glfw/include",
                 "${workspaceFolder}/../vendor/glew/include",
-                "${workspaceFolder}/vendor"
+                "${workspaceFolder}/vendor",
+                "${workspaceFolder}/src"
             ],
             "defines": [
                 "GLEW_STATIC"
