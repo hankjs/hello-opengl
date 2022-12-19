@@ -27,10 +27,17 @@ project "OpenGL-Sandbox"
 		"%{prj.name}/src/**.cpp",
 		"%{prj.name}/vendor/stb_image/**.h",
 		"%{prj.name}/vendor/stb_image/**.cpp",
+		"%{prj.name}/vendor/imgui/**.h",
+		"%{prj.name}/vendor/imgui/**.cpp",
+	}
+
+	removefiles {
+		"%{prj.name}/vendor/imgui/main.cpp",
 	}
 
 	defines {
-		"GLEW_STATIC"
+		"GLEW_STATIC",
+		"_WIN32"
 	}
 
 	includedirs {
